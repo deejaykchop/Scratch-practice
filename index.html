@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Another Scratch Lab PRO</title>
+
+<style>
+/* 깃허브에 올린 background.jpg 적용 */
+body {
+  background: url('./background.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  margin: 0;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px); 
+  z-index: -1;
+}
+
+h1 {
+  color: #ff1744;
+  text-align: center;
+  font-size: 26px;
+  text-shadow: 2px 2px 5px rgba(0,0,0,0.8);
+  margin-bottom: 20px;
+}
+
+select, input, button {
+  width: 100%; padding: 12px; margin-top: 10px;
+  border-radius: 8px; border: 2px solid rgba(255, 23, 68, 0.6);
+  background: rgba(15, 15, 15, 0.85); color: #fff;
+  font-size: 16px; box-sizing: border-box;
+}
+
+button {
+  background: #ff1744; color: #fff; font-weight: bold;
+  cursor: pointer; text-transform: uppercase;
+  border: none; box-shadow: 0 4px 15px rgba(255, 23, 68, 0.4);
+  transition: 0.2s;
+}
+
+button:hover { background: #d50000; transform: scale(0.98); }
+
+.result {
+  margin-top: 25px; padding: 20px;
+  background: rgba(20, 20, 20, 0.75);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 23, 68, 0.5); border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+}
+
+.combo {
+  background: rgba(0, 0, 0, 0.85); padding: 15px; margin-top: 10px;
+  border-radius: 8px; font-size: 18px; font-weight: bold; text-align: center;
+  border: 1px solid #ff1744; text-shadow: 1px 1px 2px #ff1744;
+}
+
+/* 동영상 플레이어 스타일 */
+.player-container {
+  margin-top: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid #ff1744;
+  box-shadow: 0 0 15px rgba(255, 23, 68, 0.3);
+}
+iframe { width: 100%; height: 250px; border: none; display: block; }
+canvas { background: rgba(0, 0, 0, 0.8); border-radius: 10px; margin-top: 10px; width: 100%; border: 1px solid #333;}
+
+.section-title { color: #ff1744; margin-top: 20px; margin-bottom: 10px; font-weight: bold; text-shadow: 1px 1px 3px #000; }
+.tag { background: #ff1744; color: #fff; padding: 6px 12px; border-radius: 20px; display: inline-block; margin: 5px 5px 0 0; font-size: 14px; font-weight: bold; box-shadow: 1px 1px 5px rgba(0,0,0,0.5); }
+
+/* 새 창이 아닌 자체 재생 버튼 */
+.yt-btn {
+  background: #282828; color: #fff; padding: 10px 15px; border-radius: 8px;
+  border: 1px solid #ff1744; font-size: 14px; font-weight: bold; display: inline-block;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4); margin: 5px 5px 0 0; width: auto;
+}
+.yt-btn:hover { background: #ff1744; }
+</style>
+</head>
+<body>
+
+<h1>ANOTHER SCRATCH LAB PRO</h1>
+
+<select id="mode">
+<option value="club">🎧 Club Mode</option>
+<option value="battle">🥊 Battle Mode</option>
+</select>
+
+<select id="level">
+<option value="low">난이도: 하</option>
+<option value="mid">난이도: 중</option>
+<option value="high">난이도: 상</option>
+<option value="expert">난이도: 최상</option>
+</select>
+
+<input type="number" id="bpmInput" placeholder="현재 트랙 BPM 입력">
+
+<button onclick="generate()">콤보 생성</button>
+
+<div id="result" class="result" style="display:none;"></div>
+
+<script>
+function bpmRange(bpm){
+if(bpm<90) return "A";
+if(bpm<100) return "B";
+if(bpm<110) return "C";
+if(bpm<120) return "D";
+if(bpm<135) return "E";
+return "F";
+}
+
+const pool={
+A:{low:["Baby","Chirp"],mid:["Baby","Chirp","Tear"],high:["Tear","1Click","Orbit"],expert:["Swing","3Click","Aquaman"]},
+B:{low:["Baby","Chirp","Stab"],mid:["2Click","Tear"],high:["Orbit","Crab"],expert:["Woodpecker","Aquaman","Walking"]},
+C:{low:["Chirp","Transformer"],mid:["2Click","Orbit"],high:["3Click","Twiddle"],expert:["Phaser","Clover","Walking"]},
+D:{low:["Transformer"],mid:["Orbit","Crab"],high:["3Click","Boomerang"],expert:["Aquaman","Clover","Lazer"]},
+E:{low:["Baby"],mid:["Orbit"],high:["Fast Orbit","Crab Burst"],expert:["Taser","Lazer","Uzi"]},
+F:{low:["Transformer"],mid:["Fast Orbit"],high:["Crab Burst","Twiddle"],expert:["Autobahn","Uzi","Tornado"]}
+};
+
+const tensionMap={
+"Baby":1,"Chirp":2,"Tear":3,"Transformer":3,
+"1Click":4,"2Click":5,"Orbit":6,"Crab":7,"Swing":7,
+"3Click":8,"Twiddle":9,"Boomerang":7,"Woodpecker":8,"Phaser":8,
+"Fast Orbit":8,"Crab Burst":9,"Stab":2,
+"Aquaman":8,"Walking":9,"Taser":10,"Autobahn":10,
+"Clover":9,"Lazer":9,"Uzi":10,"Tornado":10
+};
+
+const connectionMap={
+"Baby":["Chirp","Tear"],
+"Chirp":["2Click","Orbit"],
+"Tear":["Orbit","Transformer"],
+"2Click":["Orbit","Crab"],
+"Orbit":["Crab","Twiddle"],
+"Crab":["3Click","Boomerang"],
+"3Click":["Twiddle","Crab Burst"],
+"Boomerang":["Aquaman","Walking"],
+"Twiddle":["Taser","Phaser"],
+"Aquaman":["Walking","Crab Burst"],
+"Walking":["Taser","Autobahn"],
+"Phaser":["Lazer","Uzi"],
+"Lazer":["Tornado"],
+"Woodpecker":["Crab Burst"],
+"Clover":["Walking"],
+"Uzi":["Autobahn"],
+"Tornado":["Stab"],
+"Swing":["Orbit", "3Click"]
+};
+
+function rand(arr){return arr[Math.floor(Math.random()*arr.length)]}
+
+function buildCombo(mode,range,level){
+let arr=pool[range][level];
+let combo=[];
+let count=mode==="club"?3:4;
+for(let i=0;i<count;i++){combo.push(rand(arr));}
+if(mode==="club") combo.push("Stab");
+return combo;
+}
+
+// 유튜브 아이프레임 소스 변경 함수
+function playVid(query) {
+  const iframe = document.getElementById("ytPlayer");
+  // 퍼가기 차단을 피하기 위해 검색결과(listType=search) 플레이리스트 방식으로 재생
+  iframe.src = "https://www.youtube.com/embed?listType=search&list=" + query + "+scratch+dj+tutorial";
+}
+
+function generate(){
+const bpm=parseInt(document.getElementById("bpmInput").value);
+if(!bpm){alert("BPM을 입력해 주세요.");return;}
+const mode=document.getElementById("mode").value;
+const level=document.getElementById("level").value;
+const range=bpmRange(bpm);
+let combo=buildCombo(mode,range,level);
+render(combo,mode);
+}
+
+function render(combo,mode){
+const resDiv = document.getElementById("result");
+resDiv.style.display = "block";
+
+let html=`<div class="section-title" style="margin-top:0;">${mode==="club"?"🎧 CLUB PERFORMANCE":"🥊 BATTLE PERFORMANCE"}</div>`;
+html+=`<div class="combo">${combo.join(" → ")}</div>`;
+
+// 인앱 재생 버튼
+html+=`<div class="section-title">📺 튜토리얼 보기 (클릭하면 아래에서 재생)</div><div>`;
+combo.forEach(move => {
+  html+= `<button type="button" class="yt-btn" onclick="playVid('${move}')">▶ ${move}</button>`;
+});
+html+=`</div>`;
+
+// 유튜브 플레이어 화면 (기본 화면은 스크래치 기초 튜토리얼 검색 결과)
+html+=`
+<div class="player-container">
+  <iframe id="ytPlayer" src="https://www.youtube.com/embed?listType=search&list=dj+scratch+tutorial+basics" allowfullscreen></iframe>
+</div>
+`;
+
+let last=combo[combo.length-1];
+let suggestions=connectionMap[last]||["Stab", "Baby"];
+html+=`<div class="section-title">🔥 다음 연결 추천</div><div>`;
+suggestions.forEach(s => { html+=`<span class="tag">${s}</span>`; });
+html+=`</div>`;
+
+html+=`<div class="section-title">📈 Tension Flow</div>
+<canvas id="tensionChart" width="400" height="200"></canvas>`;
+
+resDiv.innerHTML=html;
+setTimeout(() => drawGraph(combo), 50); 
+}
+
+function drawGraph(combo){
+let canvas=document.getElementById("tensionChart");
+if(!canvas) return;
+canvas.width = canvas.parentElement.clientWidth;
+let ctx=canvas.getContext("2d");
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+let max=10;
+let padding=30;
+let stepX=canvas.width/(combo.length+1);
+
+ctx.beginPath();
+combo.forEach((move,i)=>{
+  let t=tensionMap[move]||1;
+  let x=stepX*(i+1);
+  let y=canvas.height - padding - (t/max)*(canvas.height-padding*2);
+  if(i===0) ctx.moveTo(x,y);
+  else ctx.lineTo(x,y);
+});
+ctx.strokeStyle="#ff1744";
+ctx.lineWidth=3;
+ctx.stroke();
+
+combo.forEach((move,i)=>{
+  let t=tensionMap[move]||1;
+  let x=stepX*(i+1);
+  let y=canvas.height - padding - (t/max)*(canvas.height-padding*2);
+  
+  ctx.beginPath();
+  ctx.arc(x,y,6,0,Math.PI*2);
+  ctx.fillStyle="#ff1744";
+  ctx.fill();
+  
+  ctx.fillStyle="#fff";
+  ctx.font="bold 12px Arial";
+  ctx.textAlign="center";
+  ctx.fillText(move, x, y - 15);
+});
+}
+</script>
+</body>
+</html>
