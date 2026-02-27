@@ -3,135 +3,135 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Another HipHop Showcase Lab</title>
+<title>Another Scratch Lab PRO</title>
+
 <style>
-body {
-  background: #000;
-  color: #fff;
-  font-family: Arial, sans-serif;
-  padding: 20px;
-}
-h1 {
-  color: #ff1744;
-  text-align: center;
-}
-input, button, textarea {
-  width: 100%;
-  padding: 15px;
-  margin-top: 10px;
-  border-radius: 8px;
-  border: none;
-  font-size: 16px;
-}
-button {
-  background: #ff1744;
-  color: white;
-  font-weight: bold;
-}
-.section {
-  margin-top: 30px;
-}
-.result {
-  margin-top: 20px;
-  padding: 15px;
-  background: #111;
-  border-radius: 8px;
-}
-.log-item {
-  background:#111;
-  padding:10px;
-  margin-top:5px;
-  border-radius:6px;
-}
+body{background:#000;color:#fff;font-family:Arial;padding:20px}
+h1{color:#ff1744;text-align:center}
+select,input,button{
+width:100%;padding:12px;margin-top:10px;
+border-radius:8px;border:none;font-size:16px}
+button{background:#ff1744;color:#fff;font-weight:bold}
+.result{margin-top:20px;padding:15px;background:#111;border-radius:10px}
+iframe{width:100%;height:200px;margin-top:10px;border-radius:10px}
+.combo{background:#1a1a1a;padding:10px;margin-top:10px;border-radius:8px}
+.mode-title{color:#ff1744;font-weight:bold;margin-top:15px}
 </style>
 </head>
 <body>
 
-<h1>ANOTHER HIPHOP SHOWCASE LAB</h1>
+<h1>ANOTHER SCRATCH LAB PRO</h1>
 
-<div class="section">
-<h2>BPM Input</h2>
+<select id="mode">
+<option value="club">🎧 Club Mode</option>
+<option value="battle">🥊 Battle Mode</option>
+</select>
+
+<select id="level">
+<option value="low">난이도: 하</option>
+<option value="mid">난이도: 중</option>
+<option value="high">난이도: 상</option>
+</select>
+
 <input type="number" id="bpmInput" placeholder="현재 트랙 BPM 입력">
-<button onclick="recommendScratch()">추천 보기</button>
-<div id="result" class="result"></div>
-</div>
 
-<div class="section">
-<h2>Practice Log</h2>
-<textarea id="practiceText" placeholder="연습 내용 기록"></textarea>
-<button onclick="saveLog()">기록 저장</button>
-<div id="logList"></div>
-</div>
+<button onclick="generate()">콤보 생성</button>
+
+<div id="result" class="result"></div>
 
 <script>
-function recommendScratch() {
-  const bpm = parseInt(document.getElementById("bpmInput").value);
-  const result = document.getElementById("result");
-  if (!bpm) {
-    result.innerHTML = "BPM을 입력하세요.";
-    return;
-  }
 
-  let output = "";
-
-  if (bpm >= 85 && bpm <= 95) {
-    output = `
-    <b>🎙 벌스 위</b><br>
-    Baby → Chirp → Baby<br><br>
-    <b>🚨 훅 직전</b><br>
-    Tear → 1Click → Stab
-    `;
-  }
-  else if (bpm > 95 && bpm <= 105) {
-    output = `
-    <b>🎙 벌스 위</b><br>
-    Chirp → 2Click → Baby<br><br>
-    <b>🚨 훅 직전</b><br>
-    Orbit → Crab → Stab
-    `;
-  }
-  else if (bpm > 105 && bpm <= 115) {
-    output = `
-    <b>🎙 벌스 위</b><br>
-    Fast Chirp → 2Click → Baby<br><br>
-    <b>🚨 훅 직전</b><br>
-    3Click → Twiddle → Drop
-    `;
-  }
-  else {
-    output = `
-    <b>🎙 벌스 위</b><br>
-    Transformer Fast → Baby<br><br>
-    <b>🚨 훅 직전</b><br>
-    Fast Orbit → Crab Burst → Drop
-    `;
-  }
-
-  result.innerHTML = output;
+function bpmRange(bpm){
+if(bpm<90) return "A";
+if(bpm<100) return "B";
+if(bpm<110) return "C";
+if(bpm<120) return "D";
+if(bpm<135) return "E";
+return "F";
 }
 
-function saveLog() {
-  const text = document.getElementById("practiceText").value;
-  if (!text) return;
+const pool = {
 
-  let logs = JSON.parse(localStorage.getItem("scratchLogs")) || [];
-  logs.push(text);
-  localStorage.setItem("scratchLogs", JSON.stringify(logs));
+A:{low:["Baby","Chirp"],
+   mid:["Baby","Chirp","Tear","1Click"],
+   high:["Tear","1Click","Orbit"]},
 
-  document.getElementById("practiceText").value = "";
-  loadLogs();
+B:{low:["Baby","Chirp","Stab"],
+   mid:["2Click","Tear","Transformer"],
+   high:["Orbit","Crab","2Click"]},
+
+C:{low:["Chirp","Transformer"],
+   mid:["2Click","Orbit","Crab"],
+   high:["3Click","Twiddle","Orbit"]},
+
+D:{low:["Transformer","Chirp"],
+   mid:["Orbit","Crab","2Click"],
+   high:["3Click","Twiddle","Boomerang"]},
+
+E:{low:["Baby","Transformer"],
+   mid:["Orbit","Crab"],
+   high:["Fast Orbit","Crab Burst"]},
+
+F:{low:["Transformer"],
+   mid:["Fast Orbit","Crab"],
+   high:["Fast Orbit","Crab Burst","Twiddle"]}
+};
+
+const videoMap={
+"Baby":"N6ZmyagUCcU",
+"Chirp":"Zr8Sx8QK7zE",
+"Tear":"9xW6mF2b7Y0",
+"1Click":"6Y7LxW2d0Xw",
+"2Click":"m6L3W9r4QxU",
+"3Click":"Q2w4e6r8t9Y",
+"Orbit":"rB3Fz6Y2wLk",
+"Crab":"Z5kP4d7g2Xc",
+"Crab Burst":"Z5kP4d7g2Xc",
+"Transformer":"tP6zJH1k0E0",
+"Twiddle":"pL8mN2xQ4rT",
+"Boomerang":"hT6yU8iO0pL",
+"Fast Orbit":"rB3Fz6Y2wLk"
+};
+
+function rand(arr){return arr[Math.floor(Math.random()*arr.length)]}
+
+function buildCombo(mode,range,level){
+let arr=pool[range][level];
+let combo=[];
+let count = mode==="club"?3:4;
+
+for(let i=0;i<count;i++){
+combo.push(rand(arr));
 }
 
-function loadLogs() {
-  const logList = document.getElementById("logList");
-  let logs = JSON.parse(localStorage.getItem("scratchLogs")) || [];
-  logList.innerHTML = "";
-  logs.forEach(log => {
-    logList.innerHTML += `<div class="log-item">${log}</div>`;
-  });
+if(mode==="club") combo.push("Stab"); // 클럽은 항상 정리
+return combo;
 }
 
-loadLogs();
+function render(combo,mode){
+let html=`<div class="mode-title">${mode==="club"?"🎧 CLUB COMBO":"🥊 BATTLE COMBO"}</div>`;
+html+=`<div class="combo">${combo.join(" → ")}</div>`;
+
+combo.forEach(move=>{
+if(videoMap[move]){
+html+=`<iframe src="https://www.youtube.com/embed/${videoMap[move]}" allowfullscreen></iframe>`;
+}
+});
+
+document.getElementById("result").innerHTML=html;
+}
+
+function generate(){
+const bpm=parseInt(document.getElementById("bpmInput").value);
+if(!bpm){alert("BPM 입력");return;}
+const mode=document.getElementById("mode").value;
+const level=document.getElementById("level").value;
+const range=bpmRange(bpm);
+
+let combo=buildCombo(mode,range,level);
+render(combo,mode);
+}
+
 </script>
 
 </body>
