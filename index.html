@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Another HipHop Showcase Lab</title>
+<style>
+body {
+  background: #000;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+h1 {
+  color: #ff1744;
+  text-align: center;
+}
+input, button, textarea {
+  width: 100%;
+  padding: 15px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+}
+button {
+  background: #ff1744;
+  color: white;
+  font-weight: bold;
+}
+.section {
+  margin-top: 30px;
+}
+.result {
+  margin-top: 20px;
+  padding: 15px;
+  background: #111;
+  border-radius: 8px;
+}
+.log-item {
+  background:#111;
+  padding:10px;
+  margin-top:5px;
+  border-radius:6px;
+}
+</style>
+</head>
+<body>
+
+<h1>ANOTHER HIPHOP SHOWCASE LAB</h1>
+
+<div class="section">
+<h2>BPM Input</h2>
+<input type="number" id="bpmInput" placeholder="현재 트랙 BPM 입력">
+<button onclick="recommendScratch()">추천 보기</button>
+<div id="result" class="result"></div>
+</div>
+
+<div class="section">
+<h2>Practice Log</h2>
+<textarea id="practiceText" placeholder="연습 내용 기록"></textarea>
+<button onclick="saveLog()">기록 저장</button>
+<div id="logList"></div>
+</div>
+
+<script>
+function recommendScratch() {
+  const bpm = parseInt(document.getElementById("bpmInput").value);
+  const result = document.getElementById("result");
+  if (!bpm) {
+    result.innerHTML = "BPM을 입력하세요.";
+    return;
+  }
+
+  let output = "";
+
+  if (bpm >= 85 && bpm <= 95) {
+    output = `
+    <b>🎙 벌스 위</b><br>
+    Baby → Chirp → Baby<br><br>
+    <b>🚨 훅 직전</b><br>
+    Tear → 1Click → Stab
+    `;
+  }
+  else if (bpm > 95 && bpm <= 105) {
+    output = `
+    <b>🎙 벌스 위</b><br>
+    Chirp → 2Click → Baby<br><br>
+    <b>🚨 훅 직전</b><br>
+    Orbit → Crab → Stab
+    `;
+  }
+  else if (bpm > 105 && bpm <= 115) {
+    output = `
+    <b>🎙 벌스 위</b><br>
+    Fast Chirp → 2Click → Baby<br><br>
+    <b>🚨 훅 직전</b><br>
+    3Click → Twiddle → Drop
+    `;
+  }
+  else {
+    output = `
+    <b>🎙 벌스 위</b><br>
+    Transformer Fast → Baby<br><br>
+    <b>🚨 훅 직전</b><br>
+    Fast Orbit → Crab Burst → Drop
+    `;
+  }
+
+  result.innerHTML = output;
+}
+
+function saveLog() {
+  const text = document.getElementById("practiceText").value;
+  if (!text) return;
+
+  let logs = JSON.parse(localStorage.getItem("scratchLogs")) || [];
+  logs.push(text);
+  localStorage.setItem("scratchLogs", JSON.stringify(logs));
+
+  document.getElementById("practiceText").value = "";
+  loadLogs();
+}
+
+function loadLogs() {
+  const logList = document.getElementById("logList");
+  let logs = JSON.parse(localStorage.getItem("scratchLogs")) || [];
+  logList.innerHTML = "";
+  logs.forEach(log => {
+    logList.innerHTML += `<div class="log-item">${log}</div>`;
+  });
+}
+
+loadLogs();
+</script>
+
+</body>
+</html>
