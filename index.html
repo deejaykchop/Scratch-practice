@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Another Scratch Lab PRO</title>
+<title>Another Scratch Lab – Performance Engine</title>
 
 <style>
 body{background:#000;color:#fff;font-family:Arial;padding:20px}
@@ -13,14 +13,15 @@ width:100%;padding:12px;margin-top:10px;
 border-radius:8px;border:none;font-size:16px}
 button{background:#ff1744;color:#fff;font-weight:bold}
 .result{margin-top:20px;padding:15px;background:#111;border-radius:10px}
-iframe{width:100%;height:200px;margin-top:10px;border-radius:10px}
-.combo{background:#1a1a1a;padding:10px;margin-top:10px;border-radius:8px}
-.mode-title{color:#ff1744;font-weight:bold;margin-top:15px}
+.combo{background:#1a1a1a;padding:10px;margin-top:10px;border-radius:8px;font-size:18px}
+iframe{width:100%;height:220px;margin-top:10px;border-radius:10px}
+canvas{background:#111;border-radius:10px;margin-top:10px}
+.section-title{color:#ff1744;margin-top:20px}
 </style>
 </head>
 <body>
 
-<h1>ANOTHER SCRATCH LAB PRO</h1>
+<h1>ANOTHER SCRATCH LAB – PERFORMANCE ENGINE</h1>
 
 <select id="mode">
 <option value="club">🎧 Club Mode</option>
@@ -41,6 +42,7 @@ iframe{width:100%;height:200px;margin-top:10px;border-radius:10px}
 
 <script>
 
+// BPM 구간
 function bpmRange(bpm){
 if(bpm<90) return "A";
 if(bpm<100) return "B";
@@ -50,47 +52,50 @@ if(bpm<135) return "E";
 return "F";
 }
 
+// 기술 풀
 const pool = {
-
 A:{low:["Baby","Chirp"],
-   mid:["Baby","Chirp","Tear","1Click"],
+   mid:["Baby","Chirp","Tear"],
    high:["Tear","1Click","Orbit"]},
-
 B:{low:["Baby","Chirp","Stab"],
    mid:["2Click","Tear","Transformer"],
    high:["Orbit","Crab","2Click"]},
-
 C:{low:["Chirp","Transformer"],
    mid:["2Click","Orbit","Crab"],
    high:["3Click","Twiddle","Orbit"]},
-
 D:{low:["Transformer","Chirp"],
    mid:["Orbit","Crab","2Click"],
    high:["3Click","Twiddle","Boomerang"]},
-
 E:{low:["Baby","Transformer"],
    mid:["Orbit","Crab"],
    high:["Fast Orbit","Crab Burst"]},
-
 F:{low:["Transformer"],
    mid:["Fast Orbit","Crab"],
    high:["Fast Orbit","Crab Burst","Twiddle"]}
 };
 
-const videoMap={
-"Baby":"vJ-rzBEVKHs",
-"Chirp":"eSDQSUomWWk",
-"Tear":"BJBPKvTorek",
-"1Click":"o5425Tpjw9w",
-"2Click":"wfeCC58B9XU",
-"3Click":"2U6VLn_RXLI",
-"Orbit":"kocRjzwIYxc",
-"Crab":"ykrayJeQ_0Y",
-"Crab Burst":"ykrayJeQ_0Y",
-"Transformer":"mxjfhAKq6vs",
-"Twiddle":"b9k3ZObSncI",
-"Boomerang":"vCPy4dMrvYI",
-"Fast Orbit":"kocRjzwIYxc"
+// 텐션 점수
+const tensionMap={
+"Baby":1,"Chirp":2,"Tear":3,"Transformer":3,
+"1Click":4,"2Click":5,"Orbit":6,"Crab":7,
+"3Click":8,"Twiddle":9,"Boomerang":7,
+"Fast Orbit":8,"Crab Burst":9,"Stab":2
+};
+
+// 연결 추천
+const connectionMap={
+"Baby":["Chirp","Tear"],
+"Chirp":["2Click","Orbit"],
+"Tear":["Orbit","Transformer"],
+"1Click":["2Click","Orbit"],
+"2Click":["Orbit","Crab"],
+"Orbit":["Crab","Twiddle"],
+"Crab":["3Click","Boomerang"],
+"3Click":["Twiddle","Crab Burst"],
+"Twiddle":["Crab Burst"],
+"Fast Orbit":["Crab Burst"],
+"Transformer":["Orbit"],
+"Boomerang":["Twiddle"]
 };
 
 function rand(arr){return arr[Math.floor(Math.random()*arr.length)]}
@@ -98,27 +103,12 @@ function rand(arr){return arr[Math.floor(Math.random()*arr.length)]}
 function buildCombo(mode,range,level){
 let arr=pool[range][level];
 let combo=[];
-let count = mode==="club"?3:4;
-
+let count=mode==="club"?3:4;
 for(let i=0;i<count;i++){
 combo.push(rand(arr));
 }
-
-if(mode==="club") combo.push("Stab"); 
+if(mode==="club") combo.push("Stab");
 return combo;
-}
-
-function render(combo,mode){
-let html=`<div class="mode-title">${mode==="club"?"🎧 CLUB COMBO":"🥊 BATTLE COMBO"}</div>`;
-html+=`<div class="combo">${combo.join(" → ")}</div>`;
-
-combo.forEach(move=>{
-if(videoMap[move]){
-html+=`<iframe src="https://www.youtube.com/embed/${videoMap[move]}" allowfullscreen></iframe>`;
-}
-});
-
-document.getElementById("result").innerHTML=html;
 }
 
 function generate(){
@@ -127,12 +117,61 @@ if(!bpm){alert("BPM 입력");return;}
 const mode=document.getElementById("mode").value;
 const level=document.getElementById("level").value;
 const range=bpmRange(bpm);
-
 let combo=buildCombo(mode,range,level);
 render(combo,mode);
 }
 
-</script>
+function render(combo,mode){
 
+let html=`<h2>${mode==="club"?"🎧 CLUB PERFORMANCE":"🥊 BATTLE PERFORMANCE"}</h2>`;
+html+=`<div class="combo">${combo.join(" → ")}</div>`;
+
+// 연결 추천
+let last=combo[combo.length-1];
+let suggestions=connectionMap[last]||[];
+if(suggestions.length>0){
+html+=`<div class="section-title">🔥 다음 연결 추천</div>`;
+html+=`<div>${suggestions.join(" / ")}</div>`;
+}
+
+// 텐션 그래프
+html+=`<div class="section-title">📈 Tension Flow</div>
+<canvas id="tensionChart" width="320" height="150"></canvas>`;
+
+// 영상 (검색 embed 방식)
+combo.forEach(move=>{
+html+=`
+<div class="section-title">🎥 ${move} Tutorial</div>
+<iframe 
+src="https://www.youtube.com/embed?listType=search&list=${move}+scratch+tutorial"
+allowfullscreen>
+</iframe>
+`;
+});
+
+document.getElementById("result").innerHTML=html;
+
+drawGraph(combo);
+}
+
+function drawGraph(combo){
+let canvas=document.getElementById("tensionChart");
+let ctx=canvas.getContext("2d");
+ctx.clearRect(0,0,canvas.width,canvas.height);
+let max=10;
+let stepX=canvas.width/(combo.length+1);
+ctx.beginPath();
+combo.forEach((move,i)=>{
+let t=tensionMap[move]||1;
+let x=stepX*(i+1);
+let y=canvas.height-(t/max)*canvas.height;
+if(i===0){ctx.moveTo(x,y);}else{ctx.lineTo(x,y);}
+});
+ctx.strokeStyle="#ff1744";
+ctx.lineWidth=2;
+ctx.stroke();
+}
+
+</script>
 </body>
 </html>
