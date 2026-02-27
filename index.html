@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Another Scratch Lab PRO</title>
+<title>Another Scratch Lab – Performance Engine</title>
 
 <style>
-/* 힙합 배경 이미지 적용 (이미지 파일명을 background.jpg로 맞춰주세요) */
+/* 이미지 업로드 없이 바로 적용되는 고화질 스트리트 배경 */
 body {
-  background: url('background.jpg') no-repeat center center fixed;
+  background: url('https://images.unsplash.com/photo-1518063319789-7217e6706b04?q=80&w=2000&auto=format&fit=crop') no-repeat center center fixed;
   background-size: cover;
   color: #fff;
   font-family: Arial, sans-serif;
@@ -16,12 +16,13 @@ body {
   margin: 0;
 }
 
-/* 배경을 살짝 어둡게 눌러주어 가독성 확보 */
+/* Fancy한 UI 연출을 위한 다크 블러 오버레이 */
 body::before {
   content: "";
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px); 
   z-index: -1;
 }
 
@@ -35,37 +36,39 @@ h1 {
 
 select, input, button {
   width: 100%; padding: 12px; margin-top: 10px;
-  border-radius: 8px; border: 2px solid #ff1744;
-  background: rgba(20, 20, 20, 0.8); color: #fff;
+  border-radius: 8px; border: 2px solid rgba(255, 23, 68, 0.6);
+  background: rgba(15, 15, 15, 0.85); color: #fff;
   font-size: 16px; box-sizing: border-box;
 }
 
 button {
   background: #ff1744; color: #fff; font-weight: bold;
   cursor: pointer; text-transform: uppercase;
-  border: none; box-shadow: 0 4px 10px rgba(255, 23, 68, 0.4);
+  border: none; box-shadow: 0 4px 15px rgba(255, 23, 68, 0.4);
+  transition: 0.2s;
 }
 
-button:hover { background: #d50000; }
+button:hover { background: #d50000; transform: scale(0.98); }
 
 .result {
   margin-top: 25px; padding: 20px;
-  background: rgba(17, 17, 17, 0.85);
-  border: 1px solid #ff1744; border-radius: 12px;
-  box-shadow: 0 0 15px rgba(255, 23, 68, 0.2);
+  background: rgba(20, 20, 20, 0.75);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 23, 68, 0.5); border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
 }
 
 .combo {
-  background: rgba(0, 0, 0, 0.7); padding: 15px; margin-top: 10px;
+  background: rgba(0, 0, 0, 0.85); padding: 15px; margin-top: 10px;
   border-radius: 8px; font-size: 18px; font-weight: bold; text-align: center;
-  border: 1px solid #333;
+  border: 1px solid #ff1744; text-shadow: 1px 1px 2px #ff1744;
 }
 
-iframe { width: 100%; height: 250px; margin-top: 20px; border-radius: 10px; border: none; }
-canvas { background: rgba(0, 0, 0, 0.6); border-radius: 10px; margin-top: 10px; width: 100%; }
+iframe { width: 100%; height: 250px; margin-top: 20px; border-radius: 10px; border: 2px solid #333; }
+canvas { background: rgba(0, 0, 0, 0.8); border-radius: 10px; margin-top: 10px; width: 100%; border: 1px solid #333;}
 
 .section-title { color: #ff1744; margin-top: 20px; font-weight: bold; text-shadow: 1px 1px 3px #000; }
-.tag { background: #ff1744; color: #fff; padding: 6px 12px; border-radius: 20px; display: inline-block; margin: 5px 5px 0 0; font-size: 14px; font-weight: bold; }
+.tag { background: #ff1744; color: #fff; padding: 6px 12px; border-radius: 20px; display: inline-block; margin: 5px 5px 0 0; font-size: 14px; font-weight: bold; box-shadow: 1px 1px 5px rgba(0,0,0,0.5); }
 </style>
 </head>
 <body>
@@ -177,9 +180,9 @@ html+=`<div class="section-title">📈 Tension Flow</div>
 <canvas id="tensionChart" width="400" height="200"></canvas>`;
 
 html+=`
-<div class="section-title">🎥 Scratch Tutorial Playlist</div>
+<div class="section-title">🎥 Essential Scratch Tutorial</div>
 <iframe 
-src="https://www.youtube.com/embed/videoseries?list=PLvG9uX7y9yB4GQk1TKoEt1TKhFPxJzAm8"
+src="https://www.youtube.com/embed/jjrGmms6u5o?rel=0"
 allowfullscreen>
 </iframe>
 `;
